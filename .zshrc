@@ -172,3 +172,12 @@ alias ownAll='sudo chown -R $USER:$USER *'
 alias kad='docker container kill $(docker ps -q)'
 alias docip='docker inspect --format='"'"'{{.Name}} {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'"'"' $(docker ps -q)'
 alias st='speedtest'
+alias erc='code ~/.zshrc'
+alias grepip='ifconfig | grep inet'
+
+# NVM
+
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+code () { VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args $* ;}

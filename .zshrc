@@ -1,10 +1,108 @@
+# If you come from bash you might have to change your $PATH.
+# export PATH=$HOME/bin:/usr/local/bin:$PATH
+
+# Path to your oh-my-zsh installation.
+export ZSH="/Users/jason.brewer/.oh-my-zsh"
+
+# Set name of the theme to load --- if set to "random", it will
+# load a random theme each time oh-my-zsh is loaded, in which case,
+# to know which specific one was loaded, run: echo $RANDOM_THEME
+# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
+ZSH_THEME="robbyrussell"
+
+# Set list of themes to pick from when loading at random
+# Setting this variable when ZSH_THEME=random will cause zsh to load
+# a theme from this variable instead of looking in $ZSH/themes/
+# If set to an empty array, this variable will have no effect.
+# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+
+# Uncomment the following line to use case-sensitive completion.
+# CASE_SENSITIVE="true"
+
+# Uncomment the following line to use hyphen-insensitive completion.
+# Case-sensitive completion must be off. _ and - will be interchangeable.
+# HYPHEN_INSENSITIVE="true"
+
+# Uncomment the following line to disable bi-weekly auto-update checks.
+# DISABLE_AUTO_UPDATE="true"
+
+# Uncomment the following line to automatically update without prompting.
+# DISABLE_UPDATE_PROMPT="true"
+
+# Uncomment the following line to change how often to auto-update (in days).
+# export UPDATE_ZSH_DAYS=13
+
+# Uncomment the following line if pasting URLs and other text is messed up.
+# DISABLE_MAGIC_FUNCTIONS="true"
+
+# Uncomment the following line to disable colors in ls.
+# DISABLE_LS_COLORS="true"
+
+# Uncomment the following line to disable auto-setting terminal title.
+# DISABLE_AUTO_TITLE="true"
+
+# Uncomment the following line to enable command auto-correction.
+# ENABLE_CORRECTION="true"
+
+# Uncomment the following line to display red dots whilst waiting for completion.
+# COMPLETION_WAITING_DOTS="true"
+
+# Uncomment the following line if you want to disable marking untracked files
+# under VCS as dirty. This makes repository status check for large repositories
+# much, much faster.
+# DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+# Uncomment the following line if you want to change the command execution time
+# stamp shown in the history command output.
+# You can set one of the optional three formats:
+# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
+# or set a custom format using the strftime function format specifications,
+# see 'man strftime' for details.
+# HIST_STAMPS="mm/dd/yyyy"
+
+# Would you like to use another custom folder than $ZSH/custom?
+# ZSH_CUSTOM=/path/to/new-custom-folder
+
+# Which plugins would you like to load?
+# Standard plugins can be found in $ZSH/plugins/
+# Custom plugins may be added to $ZSH_CUSTOM/plugins/
+# Example format: plugins=(rails git textmate ruby lighthouse)
+# Add wisely, as too many plugins slow down shell startup.
+plugins=(git)
+
+source $ZSH/oh-my-zsh.sh
+
+# User configuration
+
+# export MANPATH="/usr/local/man:$MANPATH"
+
+# You may need to manually set your language environment
+# export LANG=en_US.UTF-8
+
+# Preferred editor for local and remote sessions
+# if [[ -n $SSH_CONNECTION ]]; then
+#   export EDITOR='vim'
+# else
+#   export EDITOR='mvim'
+# fi
+
+# Compilation flags
+# export ARCHFLAGS="-arch x86_64"
+
+# Set personal aliases, overriding those provided by oh-my-zsh libs,
+# plugins, and themes. Aliases can be placed here, though oh-my-zsh
+# users are encouraged to define aliases within the ZSH_CUSTOM folder.
+# For a full list of active aliases, run `alias`.
+#
+# Example aliases
+# alias zshconfig="mate ~/.zshrc"
+# alias ohmyzsh="mate ~/.oh-my-zsh"
+
 # Regular aliases
 alias ffs='sudo "$BASH" -c "$(history -p !!)"'
 alias bi='brew install'
 alias br='brew uninstall'
 alias bu='brew update'
-# Color fix for home monitor: see: https://lucascosti.com/blog/2016/08/monitor-colour-problems-over-hdmi/
-alias hdmi-color-fix='sh ~/bashscripts/hdmi-colour-fix.sh'
 
 # Git
 ## Git aliases
@@ -40,66 +138,6 @@ gcmr() { git fetch $1 merge-requests/$2/head:mr-$1-$2 && git checkout mr-$1-$2; 
 ### This function prunes references to deleted remote branches and
 ### deletes local branches that have been merged and/or deleted from the remotes.
 ### It is intended to be run when on a master branch, and warns when it isn't.
-gclean (){
-  local BRANCH=`git rev-parse --abbrev-ref HEAD`
-  # Warning if not on a master* branch
-  if [[ $BRANCH != master* ]]
-  then
-    echo -e "\e[91m!! WARNING: It looks like you are not on a master branch !!\e[39m"
-    read -r -p "Are you sure you want to continue? [y/N] " response
-    if ! [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]
-    then
-      echo "Aborted. Nothing was changed."
-      return 1
-    fi
-  fi
-  echo "Simulating a clean on $BRANCH ..." \
-  && echo "===== 1/2: simulating pruning origin =====" \
-  && git remote prune origin --dry-run \
-  && echo "===== 2/2: simulating cleaning local branches merged to $BRANCH =====" \
-  && git branch --merged $BRANCH | grep -v "^\**\s*master"  \
-  && echo "=====" \
-  && echo "Simulation complete."
-  read -r -p "Do you want to proceed with the above clean? [y/N] " response
-  if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]
-  then
-    echo "Running a clean on $BRANCH ..."
-    echo "===== 1/2: pruning origin =====" \
-    && git remote prune origin \
-    && echo "===== 2/2: cleaning local branches merged to $BRANCH =====" \
-    && git branch --merged $BRANCH | grep -v "^\**\s*master" | xargs git branch -d \
-    && echo "=====" \
-    && echo "Clean finished."
-  else
-    echo "Aborted. Nothing was changed."
-  fi
-}
-### Sync function for my current workflow, which only has a remote origin.
-### Fetches origin and rebases current branch from origin.
-gsync (){
-  local BRANCH=`git rev-parse --abbrev-ref HEAD`
-  echo "Syncing the current branch: $BRANCH"
-  echo "===== 1/2: fetching origin =====" \
-  && git fetch origin \
-  && echo "===== 2/2: rebasing $BRANCH =====" \
-  && git rebase origin/$BRANCH \
-  && echo "=====" \
-  && echo "Syncing finished."
-}
-### Sync function for my previous workflow, which had upstream+originfork+local.
-### Syncs local and origin branch from a remote: runs a fetch from specified remote + rebase local + push to origin.
-OLDgsync (){
-  local BRANCH=`git rev-parse --abbrev-ref HEAD`
-  echo "Syncing the current branch: $BRANCH"
-  echo "===== 1/3: fetching $1 =====" \
-  && git fetch $1 \
-  && echo "===== 2/3: rebasing $BRANCH =====" \
-  && git rebase $1/$BRANCH \
-  && echo "===== 3/3: pushing to origin/$BRANCH =====" \
-  && git push origin $BRANCH \
-  && echo "=====" \
-  && echo "Syncing finished."
-}
 ### Function to take git interactive rebase argument. e.g.: gir 2
 gri() { git rebase -i HEAD~$1; }
 gir() { git rebase -i HEAD~$1; }
@@ -118,62 +156,47 @@ gundoall () {
   fi
 }
 
-
-## git bash completion for aliases
-# To Setup:
-# 1) Save the .git-completion.bash file found here:
-#    https://github.com/git/git/blob/master/contrib/completion/git-completion.bash
-# 2) Add the following lines to your .bash_profile, be sure to reload (for example: source ~/.bash_profile) for the changes to take effect:
-if [ -f ~/bashscripts/git-completion.bash ]; then
-  . ~/bashscripts/git-completion.bash
-
-  # Add git completion to the aliases: you must manually match each of your aliases to the respective function for the git command defined in git-completion.bash.
-  __git_complete g __git_main
-  __git_complete gc _git_checkout
-  __git_complete gnb _git_checkout
-  __git_complete gnewbranch _git_checkout
-  __git_complete gm _git_merge
-  __git_complete grmbranch _git_branch
-  __git_complete gr _git_rebase
-  __git_complete gl _git_log
-  __git_complete ga _git_add
-  __git_complete gd _git_diff
-  __git_complete gcom _git_commit
-  __git_complete gcomma _git_commit
-  __git_complete gcmr _git_ls_remote
-  __git_complete gpull _git_pull
-  __git_complete gsync _git_fetch
-fi
-
-## Custom git prompt configuration https://github.com/magicmonty/bash-git-prompt
-  # Set config variables first
-  GIT_PROMPT_ONLY_IN_REPO=0
-
-  # GIT_PROMPT_FETCH_REMOTE_STATUS=0   # uncomment to avoid fetching remote status
-
-  # Lucas: change fetch interval to 60 minutes (default is 5)
-  GIT_PROMPT_FETCH_TIMEOUT=60
-
-  if [ -f "$HOME/.bash-git-prompt/gitprompt.sh" ]; then
-    GIT_PROMPT_ONLY_IN_REPO=1
-    source $HOME/.bash-git-prompt/gitprompt.sh
-  fi
-
 alias getDev='git fetch && git checkout develop && git pull'
 alias getMas='git fetch && git checkout master && git pull'
+alias getMan='git fetch && git checkout main && git pull'
 alias gs='git status'
 alias ns='npm run start'
 alias nt='npm test'
 alias cdP='cd ~/workshop'
 alias c='clear'
 alias r='reset'
-alias szr='source ~/.zshrc'
+alias src='source ~/.zshrc'
 alias ownAll='sudo chown -R $USER:$USER *'
 alias kad='docker container kill $(docker ps -q)'
 alias docip='docker inspect --format='"'"'{{.Name}} {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'"'"' $(docker ps -q)'
 alias st='speedtest'
 alias erc='code ~/.zshrc'
 alias grepip='ifconfig | grep inet'
+alias isVpnRaw="grepip | grep -q '10\.'"
+alias yb="yarn build"
+alias yc="alias yc && rm -rf node_modules && yarn"
+alias WHICH_AWS_ACCOUNT_ID_PLEASE="aws sts get-caller-identity --query Account --output text"
+alias temps="sudo powermetrics --samplers smc"
+alias iban="echo FR7630001007941234567890185"
+alias cpiban="iban | pbcopy"
+alias gitPrune-local-branches-not-on-remote="git fetch -p && for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do git branch -D $branch; done"
+alias terraMAT="terraform fmt -recursive"
+alias yarnLinkPurge="rm -rf ~/.config/yarn/link/*"
+
+probably_on_vpn() {
+  if ifconfig | grep inet | grep -q '10\.'
+  then
+    echo "-----------------------------------------------------------------------"
+    echo "\xE2\x9C\x85 10.x.x.x IP Found! You're probably on the VPN \xE2\x9C\x85"
+    echo "-----------------------------------------------------------------------"
+  else
+    echo "-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-"
+    echo "\xE2\x9D\x8C No 10.x.x.x IP, probably not on the VPN \xE2\x9D\x8C"
+    echo "-----------------------------------------------------------------"
+  fi
+}
+
+alias isVpn=probably_on_vpn
 
 # NVM
 
@@ -181,3 +204,42 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 code () { VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args $* ;}
+
+
+# tabtab source for serverless package
+# uninstall by removing these lines or running `tabtab uninstall serverless`
+[[ -f /Users/jason.brewer/workshop/international-infra/secrets_macro/node_modules/tabtab/.completions/serverless.zsh ]] && . /Users/jason.brewer/workshop/international-infra/secrets_macro/node_modules/tabtab/.completions/serverless.zsh
+# tabtab source for sls package
+# uninstall by removing these lines or running `tabtab uninstall sls`
+[[ -f /Users/jason.brewer/workshop/international-infra/secrets_macro/node_modules/tabtab/.completions/sls.zsh ]] && . /Users/jason.brewer/workshop/international-infra/secrets_macro/node_modules/tabtab/.completions/sls.zsh
+### Added by Zinit's installer
+if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
+    print -P "%F{33}▓▒░ %F{220}Installing %F{33}DHARMA%F{220} Initiative Plugin Manager (%F{33}zdharma/zinit%F{220})…%f"
+    command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
+    command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
+        print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
+        print -P "%F{160}▓▒░ The clone has failed.%f%b"
+fi
+
+source "$HOME/.zinit/bin/zinit.zsh"
+autoload -Uz _zinit
+(( ${+_comps} )) && _comps[zinit]=_zinit
+
+# yarn autocomplete (requires zinit: https://github.com/zdharma/zinit)
+
+zinit ice atload"zpcdreplay" atclone'./zplug.zsh'
+zinit light g-plane/zsh-yarn-autocompletions
+
+# Load a few important annexes, without Turbo
+# (this is currently required for annexes)
+zinit light-mode for \
+    zinit-zsh/z-a-rust \
+    zinit-zsh/z-a-as-monitor \
+    zinit-zsh/z-a-patch-dl \
+    zinit-zsh/z-a-bin-gem-node
+
+### End of Zinit's installer chunk
+export PATH="/usr/local/opt/libpq/bin:$PATH"
+
+# Added by Amplify CLI binary installer
+export PATH="$HOME/.amplify/bin:$PATH"
